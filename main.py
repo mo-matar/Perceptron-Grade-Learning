@@ -61,6 +61,7 @@ class PerceptronGUI(tk.Tk):
         ttk.Button(trainFrame, text="Train", command=self.getReadyToTrain).pack(pady=5)
         ttk.Button(trainFrame, text="Plot Perceptron Boundary and ideal Boundary", command=self.perceptron.plot).pack(
             pady=5)
+        ttk.Button(trainFrame, text="Plot Performance", command=self.perceptron.plotMSE).pack(pady=5)
 
     def getReadyToTrain(self):
         # Check if values have been set by the user

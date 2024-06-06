@@ -25,6 +25,7 @@ class PerceptronPassFail:
         self.X = None
         self.Yd = None
         self.Ya = None
+        self.MSE_history = []
         self.weights = None  # Include threshold as part of weights
         self.weights = None
         self.X_train = None
@@ -68,14 +69,35 @@ class PerceptronPassFail:
         self.threshold = threshold_val
         self.learning_rate = learning_rate_val
         self.weights = np.array([0.1, 0.4, 0.3, -self.threshold])  # Include threshold as part of weights
-        for i in range(self.epochs):
+
+        for epoch in range(self.epochs):
+            total_error = 0
             for j in range(self.X_train.shape[0]):
                 bigX = np.dot(self.X_train[j], self.weights)
                 self.Ya_train[j] = unit_step(bigX)
                 error = self.Yd_train[j] - self.Ya_train[j]
+                total_error += error ** 2
                 delta_w = error * self.learning_rate * self.X_train[j]
                 self.weights += delta_w
-                print(f"Epoch {i}, Sample {j}, Weights: {self.weights}, Error: {error}")
+
+            mse = total_error / self.X_train.shape[0]
+            self.MSE_history.append(mse)
+            print(f"Epoch {epoch}, MSE: {mse}, Weights: {self.weights}")
+
+        # Print the final weights and MSE history for debugging
+        print("Final weights: ", self.weights)
+        print("MSE history: ", self.MSE_history)
+
+    def plotMSE(self):
+        window_size = 10  # Size of the moving average window
+        smoothed_MSE = np.convolve(self.MSE_history, np.ones(window_size) / window_size, mode='valid')
+
+        plt.plot(range(len(smoothed_MSE)), smoothed_MSE, linestyle='-', linewidth=2, color='b')
+        plt.title('Learning Performance')
+        plt.xlabel('Epoch')
+        plt.ylabel('Mean Square Error')
+        plt.grid(True)
+        plt.show()
 
     def test(self):
         self.splitDataFrame('passfail.csv', split_rate=self.splitRate)
