@@ -92,7 +92,7 @@ class PerceptronPassFail:
         window_size = 10  # Size of the moving average window
         smoothed_MSE = np.convolve(self.MSE_history, np.ones(window_size) / window_size, mode='valid')
 
-        plt.plot(range(len(smoothed_MSE)), smoothed_MSE, linestyle='-', linewidth=2, color='b')
+        plt.plot(range(len(smoothed_MSE)), smoothed_MSE, linestyle='-', linewidth=0.5, color='b')
         plt.title('Learning Performance')
         plt.xlabel('Epoch')
         plt.ylabel('Mean Square Error')
