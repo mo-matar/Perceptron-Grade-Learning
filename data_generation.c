@@ -1,12 +1,12 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
-
+//this c program generates 50 data entries for the csv, that have a 1:1 pass fail ratio in order to be
+//easily seperable by the perceptron model
 int main() {
-    // Seed the random number generator
+    //seed the random number generator
     srand(time(NULL));
 
-    // Generate three random integers between 0 and 100
     int countpassed = 0;
     int countfailed = 0;
 	int passed = 1;
