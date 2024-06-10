@@ -16,27 +16,27 @@ class PerceptronGUI(tk.Tk):
         self.threshold = -200
         self.epoch = 100
         self.learningRate = 0.01
-        self.perceptron = PerceptronPassFail('passfail.csv', 0.8)
+        self.perceptron = PerceptronPassFail('passfail.csv', 0.8)  #an 80% split rate
         self.title("Perceptron GUI")
         self.geometry("300x200")
 
         self.main_frame = ttk.Frame(self)
         self.main_frame.pack(pady=20)
 
-        # Button 1
+        #training button frame
         self.trainPerceptronButton = ttk.Button(self.main_frame, text="Train Perceptron",
                                                 command=self.showTrainingFrame)
         self.trainPerceptronButton.pack(pady=5)
 
-        # Button 2
+        #testing button frame
         self.button2 = ttk.Button(self.main_frame, text="Test Perceptron", command=self.showTestingFrame)
         self.button2.pack(pady=5)
 
-        # Button 3
+        #entering data dynamically to csv file button frame
         self.button3 = ttk.Button(self.main_frame, text="Enter Data", command=self.showDataFrame)
         self.button3.pack(pady=5)
 
-        # Button 4
+        #printing button frame
         self.button4 = ttk.Button(self.main_frame, text="Print Data Report", command=self.printReport)
         self.button4.pack(pady=5)
 
@@ -49,7 +49,7 @@ class PerceptronGUI(tk.Tk):
         self.learningRate = tk.DoubleVar()
         self.threshold = tk.DoubleVar()
 
-        tk.Label(trainFrame, text="Enter epochs (250 recommended) : ").pack(pady=5)
+        tk.Label(trainFrame, text="Enter epochs (600 recommended) : ").pack(pady=5)
         tk.Entry(trainFrame, textvariable=self.epoch).pack(pady=5)
 
         tk.Label(trainFrame, text="Enter learning rate (0.01 recommended) :").pack(pady=5)
@@ -61,17 +61,21 @@ class PerceptronGUI(tk.Tk):
         ttk.Button(trainFrame, text="Train", command=self.getReadyToTrain).pack(pady=5)
         ttk.Button(trainFrame, text="Plot Perceptron Boundary and ideal Boundary", command=self.perceptron.plot).pack(
             pady=5)
-        ttk.Button(trainFrame, text="Plot Performance", command=self.perceptron.plotMSE).pack(pady=5)
+        ttk.Button(trainFrame, text="Plot Performance (MSE)", command=self.perceptron.plotMSE).pack(pady=5)
 
     def getReadyToTrain(self):
-        # Check if values have been set by the user
+        #get values entered
         epoch_val = self.epoch.get()
         learning_rate_val = self.learningRate.get()
         threshold_val = self.threshold.get()
 
-        # Check if any values have been changed before training
+        #if they are zero, ignore them
         if epoch_val != 0 or threshold_val != 0 or learning_rate_val != 0:
             self.perceptron.train(epoch_val, threshold_val, learning_rate_val)
+        else:
+            messagebox.showerror("Zero Error",
+                     "Please enter values other than zeros.")
+            return
 
     def showTestingFrame(self):
         trainFrame = tk.Toplevel(self)
@@ -107,10 +111,10 @@ class PerceptronGUI(tk.Tk):
         result_label.pack(pady=5)
 
     def add_data_to_csv(self, english, math, science, result):
-        # Convert result to 'pass' or 'fail'
+        #make sure that the case is matched
         result = 'pass' if result.lower() == 'pass' else 'fail'
 
-        # Create a DataFrame with the new data
+        #data frame to be added
         new_data = pd.DataFrame({
             'english': [english],
             'math': [math],
@@ -118,7 +122,7 @@ class PerceptronGUI(tk.Tk):
             'pass_fail': [result]
         })
 
-        # Append the new data to the CSV file
+        #open the csv file and append (mode = a)
         with open('passfail.csv', mode='a', newline='') as file:
             new_data.to_csv(file, index=False, header=False)
 
@@ -149,7 +153,7 @@ class PerceptronGUI(tk.Tk):
             science = science_entry.get()
             result = result_entry.get()
             try:
-                # Convert entries to integers and validate result
+                #accept integer marks for simplicity
                 english = int(english)
                 math = int(math)
                 science = int(science)

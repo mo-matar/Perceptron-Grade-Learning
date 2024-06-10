@@ -9,7 +9,8 @@ from reportlab.platypus import SimpleDocTemplate, Table, TableStyle
 from reportlab.lib import colors
 
 
-def unit_step(x, epsilon=1e-5):
+def unit_step(x, epsilon=1e-5):# a threshold value added to the unit step for faulty computer float arithmetic
+    # => might calculate 0.3 - 0.3 => -1.0e-17 instead of 0.0
     if abs(x) < epsilon:
         x = 0.0
     return 1 if x >= 0 else 0
@@ -17,7 +18,8 @@ def unit_step(x, epsilon=1e-5):
 
 class PerceptronPassFail:
     def __init__(self, csvFile, split_rate):
-        self.learning_rate = 0.01  # Adjust learning rate if needed
+        self.trained = False
+        self.learning_rate = 0.01
         self.epochs = 250
         self.threshold = 200
         self.splitRate = split_rate
@@ -26,7 +28,7 @@ class PerceptronPassFail:
         self.Yd = None
         self.Ya = None
         self.MSE_history = []
-        self.weights = None  # Include threshold as part of weights
+        self.weights = None
         self.weights = None
         self.X_train = None
         self.X_test = None
@@ -41,15 +43,15 @@ class PerceptronPassFail:
         print("Yd: ", self.Yd)
         print(self.X.shape[0])
 
-    def splitDataFrame(self, csvFile, split_rate):
+    def splitDataFrame(self, csvFile, split_rate):#this function splits the data and initializes the dataframe arrays
+        # for learning
         self.df = pd.read_csv(csvFile)
         self.df['pass_fail'] = self.df['pass_fail'].map({'pass': 1, 'fail': 0})
         self.X = self.df[['english', 'math', 'science']].values
         self.Yd = self.df['pass_fail'].values
         self.Ya = [0] * len(self.Yd)
         self.X = np.hstack((self.X, np.ones((self.X.shape[0], 1))))  # Add bias term to X
-        # Splitting data into training and testing sets
-        split_index = int(self.splitRate * len(self.df))
+        split_index = int(self.splitRate * len(self.df))#split the data
 
         self.X_train = self.df[['english', 'math', 'science']].values[:split_index]
         self.X_test = self.df[['english', 'math', 'science']].values[split_index:]
@@ -60,15 +62,16 @@ class PerceptronPassFail:
         self.Ya_train = [0] * len(self.Yd_train)
         self.Ya_test = [0] * len(self.Yd_test)
 
-        self.X_train = np.hstack((self.X_train, np.ones((self.X_train.shape[0], 1))))  # Add bias term to X
-        self.X_test = np.hstack((self.X_test, np.ones((self.X_test.shape[0], 1))))  # Add bias term to X
+        self.X_train = np.hstack((self.X_train, np.ones((self.X_train.shape[0], 1))))  #add 1 to data to update the threshold
+        self.X_test = np.hstack((self.X_test, np.ones((self.X_test.shape[0], 1))))  #add 1 to data to update the threshold
 
     def train(self, epoch_val, threshold_val, learning_rate_val):
+        self.trained = True
         self.splitDataFrame('passfail.csv', split_rate=self.splitRate)
         self.epochs = epoch_val
         self.threshold = threshold_val
         self.learning_rate = learning_rate_val
-        self.weights = np.array([0.1, 0.4, 0.3, -self.threshold])  # Include threshold as part of weights
+        self.weights = np.array([0.1, 0.4, 0.3, -self.threshold])  #threshold is updated with the weights as a -ve value; this worked better
 
         for epoch in range(self.epochs):
             total_error = 0
@@ -89,93 +92,117 @@ class PerceptronPassFail:
         print("MSE history: ", self.MSE_history)
 
     def plotMSE(self):
-        window_size = 10  # Size of the moving average window
-        smoothed_MSE = np.convolve(self.MSE_history, np.ones(window_size) / window_size, mode='valid')
+        if not self.trained:
+            messagebox.showerror("Plot Error",
+                     "Please train the Perceptron model first.")
+            return
+        else:
+            window_size = 10  # Size of the moving average window
+            smoothed_MSE = np.convolve(self.MSE_history, np.ones(window_size) / window_size, mode='valid')
 
-        plt.plot(range(len(smoothed_MSE)), smoothed_MSE, linestyle='-', linewidth=0.5, color='b')
-        plt.title('Learning Performance')
-        plt.xlabel('Epoch')
-        plt.ylabel('Mean Square Error')
-        plt.grid(True)
-        plt.show()
+            plt.plot(range(len(smoothed_MSE)), smoothed_MSE, linestyle='-', linewidth=0.5, color='b')
+            plt.title('Learning Performance')
+            plt.xlabel('Epoch')
+            plt.ylabel('Mean Square Error')
+            plt.grid(True)
+            plt.show()
 
     def test(self):
-        self.splitDataFrame('passfail.csv', split_rate=self.splitRate)
-        correct_predictions = 0
-        total_samples = len(self.X_test)
+        if not self.trained:
+            messagebox.showerror("Test Error",
+                     "Please train the Perceptron model first.")
+            return
+        else:
+            self.splitDataFrame('passfail.csv', split_rate=self.splitRate)
+            correct_predictions = 0
+            total_samples = len(self.X_test)
 
-        for i in range(total_samples):
-            bigX = np.dot(self.X_test[i], self.weights)
-            prediction = unit_step(bigX)
-            self.Ya_test[i] = prediction
-            if prediction == self.Yd_test[i]:
-                correct_predictions += 1
+            for i in range(total_samples):
+                bigX = np.dot(self.X_test[i], self.weights)
+                prediction = unit_step(bigX)
+                self.Ya_test[i] = prediction
+                if prediction == self.Yd_test[i]:
+                    correct_predictions += 1
 
-        return (correct_predictions / total_samples) * 100.0
+            return (correct_predictions / total_samples) * 100.0
 
     def plot(self):
-        fig1 = plt.figure()
-        ax1 = fig1.add_subplot(111, projection='3d')
-        for i in range(self.X_train.shape[0]):
-            if self.Yd_train[i] == 1:
-                ax1.scatter(self.X_train[i, 0], self.X_train[i, 1], self.X_train[i, 2], c='b', marker='o')
-            else:
-                ax1.scatter(self.X_train[i, 0], self.X_train[i, 1], self.X_train[i, 2], c='r', marker='x')
-        x = np.linspace(self.X_train[:, 0].min(), self.X_train[:, 0].max(), 10)
-        y = np.linspace(self.X_train[:, 1].min(), self.X_train[:, 1].max(), 10)
-        X, Y = np.meshgrid(x, y)
-        Z = (-self.weights[3] - self.weights[0] * X - self.weights[1] * Y) / self.weights[2]
-        ax1.plot_surface(X, Y, Z, alpha=0.5, rstride=100, cstride=100, color='g')
-        ax1.set_xlabel('English')
-        ax1.set_ylabel('Math')
-        ax1.set_zlabel('Science')
-        ax1.set_title('Perceptron Decision Boundary')
-        fig2 = plt.figure()
-        ax2 = fig2.add_subplot(111, projection='3d')
-        for i in range(self.X_train.shape[0]):
-            if self.Yd_train[i] == 1:
-                ax2.scatter(self.X_train[i, 0], self.X_train[i, 1], self.X_train[i, 2], c='b', marker='o')
-            else:
-                ax2.scatter(self.X_train[i, 0], self.X_train[i, 1], self.X_train[i, 2], c='r', marker='x')
-        Z2 = 180 - X - Y
-        ax2.plot_surface(X, Y, Z2, alpha=0.5, rstride=100, cstride=100, color='y')
-        ax2.set_xlabel('English')
-        ax2.set_ylabel('Math')
-        ax2.set_zlabel('Science')
-        ax2.set_title('Ideal Plane: x + y + z = 180')
-        plt.show()
+        if not self.trained:
+            messagebox.showerror("Plot Error",
+                     "Please train the Perceptron model first.")
+            return
+        else:
+            fig1 = plt.figure()
+            ax1 = fig1.add_subplot(111, projection='3d')
+            for i in range(self.X_train.shape[0]):
+                if self.Yd_train[i] == 1:
+                    ax1.scatter(self.X_train[i, 0], self.X_train[i, 1], self.X_train[i, 2], c='b', marker='o')
+                else:
+                    ax1.scatter(self.X_train[i, 0], self.X_train[i, 1], self.X_train[i, 2], c='r', marker='x')
+            x = np.linspace(self.X_train[:, 0].min(), self.X_train[:, 0].max(), 10)
+            y = np.linspace(self.X_train[:, 1].min(), self.X_train[:, 1].max(), 10)
+            X, Y = np.meshgrid(x, y)
+            Z = (-self.weights[3] - self.weights[0] * X - self.weights[1] * Y) / self.weights[2]
+            ax1.plot_surface(X, Y, Z, alpha=0.5, rstride=100, cstride=100, color='g')
+            ax1.set_xlabel('English')
+            ax1.set_ylabel('Math')
+            ax1.set_zlabel('Science')
+            ax1.set_title('Perceptron Decision Boundary')
+            fig2 = plt.figure()
+            ax2 = fig2.add_subplot(111, projection='3d')
+            for i in range(self.X_train.shape[0]):
+                if self.Yd_train[i] == 1:
+                    ax2.scatter(self.X_train[i, 0], self.X_train[i, 1], self.X_train[i, 2], c='b', marker='o')
+                else:
+                    ax2.scatter(self.X_train[i, 0], self.X_train[i, 1], self.X_train[i, 2], c='r', marker='x')
+            Z2 = 180 - X - Y
+            ax2.plot_surface(X, Y, Z2, alpha=0.5, rstride=100, cstride=100, color='y')
+            ax2.set_xlabel('English')
+            ax2.set_ylabel('Math')
+            ax2.set_zlabel('Science')
+            ax2.set_title('Ideal Plane: x + y + z = 180')
+            plt.show()
 
     def test_once(self, englishGrade, mathGrade, scienceGrade):
-        grades = np.array([int(englishGrade), int(mathGrade), int(scienceGrade), 1])
-        bigX = np.dot(grades, self.weights)
-        result = unit_step(bigX)
-        return "failed" if result == 0 else "passed"
+        if not self.trained:
+            messagebox.showerror("Test Error",
+                     "Please train the Perceptron model first.")
+            return
+        else:
+            grades = np.array([int(englishGrade), int(mathGrade), int(scienceGrade), 1])
+            bigX = np.dot(grades, self.weights)
+            result = unit_step(bigX)
+            return "failed" if result == 0 else "passed"
 
     def printReport(self):
-        # Create a PDF document
-        doc = SimpleDocTemplate("report.pdf", pagesize=letter)
+        if not self.trained:
+            messagebox.showerror("Print Error",
+                     "Please train the Perceptron model first.")
+            return
+        else:
+            #create pdf file
+            doc = SimpleDocTemplate("report.pdf", pagesize=letter)
 
-        # Data for the table
-        data = [["x1", "x2", "x3", "ya_train", "yd_train"]]
-        for i in range(len(self.X_train)):
-            data.append(
-                [self.X_train[i][0], self.X_train[i][1], self.X_train[i][2], self.Ya_train[i], self.Yd_train[i]])
+            #column names
+            data = [["x1", "x2", "x3", "ya_train", "yd_train"]]
+            for i in range(len(self.X_train)):
+                data.append(
+                    [self.X_train[i][0], self.X_train[i][1], self.X_train[i][2], self.Ya_train[i], self.Yd_train[i]])
 
-        # Create a table
-        table = Table(data)
 
-        # Style for the table
-        style = TableStyle([('BACKGROUND', (0, 0), (-1, 0), colors.grey),
-                            ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
-                            ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
-                            ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
-                            ('BOTTOMPADDING', (0, 0), (-1, 0), 12),
-                            ('BACKGROUND', (0, 1), (-1, -1), colors.beige),
-                            ('GRID', (0, 0), (-1, -1), 1, colors.black)])
-        table.setStyle(style)
+            table = Table(data)
 
-        # Add the table to the document
-        elements = []
-        elements.append(table)
-        doc.build(elements)
+            #style the table
+            style = TableStyle([('BACKGROUND', (0, 0), (-1, 0), colors.grey),
+                                ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
+                                ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
+                                ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+                                ('BOTTOMPADDING', (0, 0), (-1, 0), 12),
+                                ('BACKGROUND', (0, 1), (-1, -1), colors.beige),
+                                ('GRID', (0, 0), (-1, -1), 1, colors.black)])
+            table.setStyle(style)
+
+            elements = []
+            elements.append(table)
+            doc.build(elements)
 
