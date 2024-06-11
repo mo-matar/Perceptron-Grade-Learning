@@ -80,7 +80,7 @@ class PerceptronGUI(tk.Tk):
     def showTestingFrame(self):
         trainFrame = tk.Toplevel(self)
         trainFrame.title("Testing Perceptron")
-        trainFrame.geometry("400x400")
+        trainFrame.geometry("480x400")
 
         tk.Label(trainFrame, text="Enter English Grade:").pack(pady=5)
         english_entry = tk.Entry(trainFrame)
@@ -96,11 +96,17 @@ class PerceptronGUI(tk.Tk):
 
         def test_using_split_data():
             accuracy = self.perceptron.test()
-            accuracy_label.config(text=f"Accuracy of testing is: {accuracy}")
+            accuracy_label.config(text=f"Accuracy of testing is: {accuracy}%")
 
         def test_entered_data():
-            result = self.perceptron.test_once(english_entry.get(), math_entry.get(), science_entry.get())
-            result_label.config(text=f"Result of Entered Grades is: {result}")
+            try:
+                result, average = self.perceptron.test_once(english_entry.get(), math_entry.get(), science_entry.get())
+                result_label.config(text=f"Result of Entered Grades is: {result} \nwith average: {average}\n"
+                                         f"note that student needs 60 to pass. perceptron may have errors.")
+            except Exception as e:
+                messagebox.showerror("Calculation Error", "Might have tried to test before entering data "
+                                                          "or another exception occurred.\n"
+                                                          "Please enter data first.")
 
         ttk.Button(trainFrame, text="Test Entered Data", command=test_entered_data).pack(pady=5)
         ttk.Button(trainFrame, text="Test Using Split Data", command=test_using_split_data).pack(pady=5)
@@ -152,6 +158,10 @@ class PerceptronGUI(tk.Tk):
             math = math_entry.get()
             science = science_entry.get()
             result = result_entry.get()
+            if int(english) > 100 or int(math) > 100 or int(science) > 100:
+                messagebox.showerror("Data Entry Error",
+                                     "Data must be less than 100.")
+                return
             try:
                 #accept integer marks for simplicity
                 english = int(english)

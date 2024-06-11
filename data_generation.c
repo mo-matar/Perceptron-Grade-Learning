@@ -14,9 +14,9 @@ int main() {
     
     while(1){
     if(!countfailed && !countpassed) break;
-       int num1 = rand() % 101;  // Random integer 1
-       int num2 = rand() % 101;  // Random integer 2
-       int num3 = rand() % 101;  // Random integer 3
+       int num1 = rand() % 101;
+       int num2 = rand() % 101;
+       int num3 = rand() % 101;
 	if(num1+num2+num3 >= 180 && passed){
 		printf("%d,%d,%d,pass\n", num1, num2, num3);
 		countpassed++;
