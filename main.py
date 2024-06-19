@@ -44,14 +44,14 @@ class PerceptronGUI(tk.Tk):
     def showTrainingFrame(self):
         trainFrame = tk.Toplevel(self)
         trainFrame.title("Training the Perceptron")
-        trainFrame.geometry("400x400")
+        trainFrame.geometry("470x400")
 
         self.epoch = tk.IntVar()
         self.learningRate = tk.DoubleVar()
         self.threshold = tk.DoubleVar()
         self.goal = tk.DoubleVar()
 
-        tk.Label(trainFrame, text="Enter epochs (600 recommended) : ").pack(pady=5)
+        tk.Label(trainFrame, text="Enter epochs (600 recommended) not needed if goal is entered: ").pack(pady=5)
         tk.Entry(trainFrame, textvariable=self.epoch).pack(pady=5)
 
         tk.Label(trainFrame, text="Enter learning rate (0.01 recommended) :").pack(pady=5)
