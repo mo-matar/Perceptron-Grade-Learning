@@ -1,3 +1,5 @@
+import math
+
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
@@ -18,6 +20,7 @@ def unit_step(x, epsilon=1e-5):# a threshold value added to the unit step for fa
 
 class PerceptronPassFail:
     def __init__(self, csvFile, split_rate):
+        self.tested = False
         self.trained = False
         self.learning_rate = 0.01
         self.epochs = 250
@@ -65,15 +68,18 @@ class PerceptronPassFail:
         self.X_train = np.hstack((self.X_train, np.ones((self.X_train.shape[0], 1))))  #add 1 to data to update the threshold
         self.X_test = np.hstack((self.X_test, np.ones((self.X_test.shape[0], 1))))  #add 1 to data to update the threshold
 
-    def train(self, epoch_val, threshold_val, learning_rate_val):
+    def train(self, epoch_val, threshold_val, learning_rate_val, goal_val):
         self.trained = True
+        count_goal = 0
         self.splitDataFrame('passfail.csv', split_rate=self.splitRate)
         self.epochs = epoch_val
         self.threshold = threshold_val
         self.learning_rate = learning_rate_val
-        self.weights = np.array([0.1, 0.4, 0.3, -self.threshold])  #threshold is updated with the weights as a -ve value; this worked better
-
-        for epoch in range(self.epochs):
+        #self.weights = np.array([0.1, 0.4, 0.3, -self.threshold])
+        random_weights = np.random.uniform(-0.5, 0.5, 3)
+        self.weights = np.concatenate((random_weights, [-self.threshold]))  #threshold is updated with the weights as a -ve value; this worked better
+        epoch = 0
+        while True:
             total_error = 0
             for j in range(self.X_train.shape[0]):
                 bigX = np.dot(self.X_train[j], self.weights)
@@ -87,6 +93,16 @@ class PerceptronPassFail:
             self.MSE_history.append(mse)
             print(f"Epoch {epoch}, MSE: {mse}, Weights: {self.weights}")
 
+            epoch += 1
+            if goal_val != 0:
+                if mse <= goal_val:
+                    count_goal = count_goal + 1
+                    if count_goal >= 10:
+                        break
+            else:
+                if epoch >= self.epochs:
+                    break
+
         # Print the final weights and MSE history for debugging
         print("Final weights: ", self.weights)
         print("MSE history: ", self.MSE_history)
@@ -98,7 +114,7 @@ class PerceptronPassFail:
                      "Please train the Perceptron model first.")
             return
         else:
-            window_size = 10  # Size of the moving average window
+            window_size = 10
             smoothed_MSE = np.convolve(self.MSE_history, np.ones(window_size) / window_size, mode='valid')
 
             plt.plot(range(len(smoothed_MSE)), smoothed_MSE, linestyle='-', linewidth=0.5, color='b')
@@ -107,6 +123,8 @@ class PerceptronPassFail:
             plt.ylabel('Mean Square Error')
             plt.grid(True)
             plt.show()
+            self.MSE_history.clear()
+
 
     def test(self):
         #test the perceptron for the split data
@@ -115,6 +133,7 @@ class PerceptronPassFail:
                      "Please train the Perceptron model first.")
             return
         else:
+            self.tested = True
             self.splitDataFrame('passfail.csv', split_rate=self.splitRate)
             correct_predictions = 0
             total_samples = len(self.X_test)
@@ -191,19 +210,19 @@ class PerceptronPassFail:
             return "failed" if result == 0 else "passed", (grades[0]+grades[1]+grades[2])/3
 
     def printReport(self):
-        if not self.trained:
+        if not self.tested:
             messagebox.showerror("Print Error",
-                     "Please train the Perceptron model first.")
+                     "Please test the Perceptron model first.")
             return
         else:
             #create pdf file
             doc = SimpleDocTemplate("report.pdf", pagesize=letter)
 
             #column names
-            data = [["x1", "x2", "x3", "ya_train", "yd_train"]]
-            for i in range(len(self.X_train)):
+            data = [["x1", "x2", "x3", "ya_test", "yd_test"]]
+            for i in range(len(self.X_test)):
                 data.append(
-                    [self.X_train[i][0], self.X_train[i][1], self.X_train[i][2], self.Ya_train[i], self.Yd_train[i]])
+                    [self.X_test[i][0], self.X_test[i][1], self.X_test[i][2], self.Ya_test[i], self.Yd_test[i]])
 
 
             table = Table(data)

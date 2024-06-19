@@ -13,6 +13,7 @@ class PerceptronGUI(tk.Tk):
         super().__init__()
 
         #initialize perceptron object
+        self.goal = 0.001
         self.threshold = -200
         self.epoch = 100
         self.learningRate = 0.01
@@ -48,6 +49,7 @@ class PerceptronGUI(tk.Tk):
         self.epoch = tk.IntVar()
         self.learningRate = tk.DoubleVar()
         self.threshold = tk.DoubleVar()
+        self.goal = tk.DoubleVar()
 
         tk.Label(trainFrame, text="Enter epochs (600 recommended) : ").pack(pady=5)
         tk.Entry(trainFrame, textvariable=self.epoch).pack(pady=5)
@@ -57,6 +59,9 @@ class PerceptronGUI(tk.Tk):
 
         tk.Label(trainFrame, text="Enter threshold (200 recommended) :").pack(pady=5)
         tk.Entry(trainFrame, textvariable=self.threshold).pack(pady=5)
+
+        tk.Label(trainFrame, text="Enter MSE goal (keep it 0.0 if you don't want goal).").pack(pady=5)
+        tk.Entry(trainFrame, textvariable=self.goal).pack(pady=5)
 
         ttk.Button(trainFrame, text="Train", command=self.getReadyToTrain).pack(pady=5)
         ttk.Button(trainFrame, text="Plot Perceptron Boundary and ideal Boundary", command=self.perceptron.plot).pack(
@@ -68,13 +73,14 @@ class PerceptronGUI(tk.Tk):
         epoch_val = self.epoch.get()
         learning_rate_val = self.learningRate.get()
         threshold_val = self.threshold.get()
+        goal_val = self.goal.get()
 
         #if they are zero, ignore them
-        if epoch_val != 0 or threshold_val != 0 or learning_rate_val != 0:
-            self.perceptron.train(epoch_val, threshold_val, learning_rate_val)
+        if (epoch_val != 0 or threshold_val != 0) and (learning_rate_val != 0):
+            self.perceptron.train(epoch_val, threshold_val, learning_rate_val, goal_val)
         else:
             messagebox.showerror("Zero Error",
-                     "Please enter values other than zeros.")
+                                 "Please enter values other than zeros.")
             return
 
     def showTestingFrame(self):
