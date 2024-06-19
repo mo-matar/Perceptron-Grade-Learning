@@ -70,13 +70,14 @@ class PerceptronPassFail:
 
     def train(self, epoch_val, threshold_val, learning_rate_val, goal_val):
         self.trained = True
+        self.MSE_history.clear()
         count_goal = 0
         self.splitDataFrame('passfail.csv', split_rate=self.splitRate)
         self.epochs = epoch_val
         self.threshold = threshold_val
         self.learning_rate = learning_rate_val
         #self.weights = np.array([0.1, 0.4, 0.3, -self.threshold])
-        random_weights = np.random.uniform(-0.5, 0.5, 3)
+        random_weights = np.random.uniform(0.3, 0.8, 3)
         self.weights = np.concatenate((random_weights, [-self.threshold]))  #threshold is updated with the weights as a -ve value; this worked better
         epoch = 0
         while True:
