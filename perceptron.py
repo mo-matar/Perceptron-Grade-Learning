@@ -103,7 +103,6 @@ class PerceptronPassFail:
                 if epoch >= self.epochs:
                     break
 
-        # Print the final weights and MSE history for debugging
         print("Final weights: ", self.weights)
         print("MSE history: ", self.MSE_history)
 
