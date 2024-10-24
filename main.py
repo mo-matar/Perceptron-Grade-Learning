@@ -13,7 +13,7 @@ class PerceptronGUI(tk.Tk):
         super().__init__()
 
         #initialize perceptron object
-        self.goal = 0.001
+        self.goal = 0.001#goal
         self.threshold = -200
         self.epoch = 100
         self.learningRate = 0.01

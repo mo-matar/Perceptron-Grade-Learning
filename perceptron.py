@@ -32,7 +32,6 @@ class PerceptronPassFail:
         self.Ya = None
         self.MSE_history = []
         self.weights = None
-        self.weights = None
         self.X_train = None
         self.X_test = None
         self.Yd_train = None
