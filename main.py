@@ -14,7 +14,7 @@ class PerceptronGUI(tk.Tk):
 
         #initialize perceptron object
         self.goal = 0.001#goal
-        self.threshold = -200
+        self.threshold = -200#threshld
         self.epoch = 100
         self.learningRate = 0.01
         self.perceptron = PerceptronPassFail('passfail.csv', 0.8)  #an 80% split rate
