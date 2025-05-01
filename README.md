@@ -105,19 +105,19 @@ The project includes a C program (`data_generation.c`) that generates balanced p
 The project features a fully interactive GUI built with Tkinter that allows users to:
 
 1. **Train the perceptron** with configurable parameters
-   ![Training interface](img/training_details_interface.png)
+   <img src="img/training_details_interface.png" width="400" alt="Training interface">
 
 2. **Test the model** with split data or user-entered values
-   ![Testing perceptron](img/testing_perceptron_with_user_entered_data_and_with_splitting_data.png)
+   <img src="img/testing_perceptron_with_user_entered_data_and_with_splitting_data.png" width="400" alt="Testing perceptron">
 
 3. **Enter new data** to expand the dataset
-   ![Adding data](img/add_data_to_csv_file.png)
+   <img src="img/add_data_to_csv_file.png" width="400" alt="Adding data">
 
 4. **Generate reports** of test results
 
 5. **Visualize performance** through MSE plots and decision boundary visualization
-   ![MSE Plot](img/MSE_plot.png)
-   ![Decision Boundary](img/perceptron_decision_boundary_vs_ideal_boundary.png)
+   <img src="img/MSE_plot.png" width="400" alt="MSE Plot">
+   <img src="img/perceptron_decision_boundary_vs_ideal_boundary.png" width="400" alt="Decision Boundary">
 
 ## Features
 
@@ -170,17 +170,17 @@ The project features a fully interactive GUI built with Tkinter that allows user
 The model visualizes two important aspects:
 
 1. **Learning Performance**: MSE over epochs showing convergence
-   ![MSE Plot](img/MSE_plot.png)
+   <img src="img/MSE_plot.png" width="400" alt="MSE Plot">
 
 2. **Decision Boundary Comparison**:
    - Green surface: Perceptron's learned decision boundary
    - Yellow surface: Ideal boundary (x + y + z = 180)
    - Blue points: Passed students
    - Red points: Failed students
-   ![Decision Boundary](img/perceptron_decision_boundary_vs_ideal_boundary.png)
+   <img src="img/perceptron_decision_boundary_vs_ideal_boundary.png" width="400" alt="Decision Boundary">
 
 3. **Data Selection and Testing**:
-   ![Select and Test](img/select_train_test_enterdata_printReport.png)
+   <img src="img/select_train_test_enterdata_printReport.png" width="400" alt="Select and Test">
 
 ## Technical Requirements
 
