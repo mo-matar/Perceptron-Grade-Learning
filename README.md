@@ -104,20 +104,19 @@ The project includes a C program (`data_generation.c`) that generates balanced p
 
 The project features a fully interactive GUI built with Tkinter that allows users to:
 
-1. **Train the perceptron** with configurable parameters
-   <img src="img/training_details_interface.png" width="400" alt="Training interface">
 
-2. **Test the model** with split data or user-entered values
-   <img src="img/testing_perceptron_with_user_entered_data_and_with_splitting_data.png" width="400" alt="Testing perceptron">
+1. **Entry Screen**:
+   <p align="center"><img src="img/select_train_test_enterdata_printReport.png" width="400" alt="Select and Test"></p>
 
-3. **Enter new data** to expand the dataset
-   <img src="img/add_data_to_csv_file.png" width="400" alt="Adding data">
+2. **Train the perceptron** with configurable parameters
+   <p align="center"><img src="img/training_details_interface.png" width="400" alt="Training interface"></p>
 
-4. **Generate reports** of test results
+3. **Test the model** with split data or user-entered values
+   <p align="center"><img src="img/testing_perceptron_with_user_entered_data_and_with_splitting_data.png" width="400" alt="Testing perceptron"></p>
 
-5. **Visualize performance** through MSE plots and decision boundary visualization
-   <img src="img/MSE_plot.png" width="400" alt="MSE Plot">
-   <img src="img/perceptron_decision_boundary_vs_ideal_boundary.png" width="400" alt="Decision Boundary">
+4. **Enter new data** to expand the dataset
+   <p align="center"><img src="img/add_data_to_csv_file.png" width="400" alt="Adding data"></p>
+
 
 ## Features
 
@@ -170,17 +169,15 @@ The project features a fully interactive GUI built with Tkinter that allows user
 The model visualizes two important aspects:
 
 1. **Learning Performance**: MSE over epochs showing convergence
-   <img src="img/MSE_plot.png" width="400" alt="MSE Plot">
+   <p align="center"><img src="img/MSE_plot.png" width="400" alt="MSE Plot"></p>
 
 2. **Decision Boundary Comparison**:
    - Green surface: Perceptron's learned decision boundary
    - Yellow surface: Ideal boundary (x + y + z = 180)
    - Blue points: Passed students
    - Red points: Failed students
-   <img src="img/perceptron_decision_boundary_vs_ideal_boundary.png" width="400" alt="Decision Boundary">
+   <p align="center"><img src="img/perceptron_decision_boundary_vs_ideal_boundary.png" width="700" alt="Decision Boundary"></p>
 
-3. **Data Selection and Testing**:
-   <img src="img/select_train_test_enterdata_printReport.png" width="400" alt="Select and Test">
 
 ## Technical Requirements
 
